@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Node.js Auth System
 
-## Getting Started
+A robust, production-ready authentication backend built with Node.js, Express, TypeScript, and MongoDB.
 
-First, run the development server:
+## 🚀 Features
+
+- **Modular Architecture**: Organized by features (`src/modules/*`).
+- **Authentication**: JWT-based access and refresh tokens (HttpOnly cookies).
+- **Security**: Rate limiting, SHA256 token hashing, Bcrypt password hashing.
+- **2FA**: Two-Factor Authentication support (Email/OTP).
+- **Google Auth**: Integrated Google OAuth verification.
+- **Type Safety**: Full TypeScript support with Zod validation.
+
+## 🛠️ Tech Stack
+
+- **Runtime**: Node.js
+- **Framework**: Express
+- **Language**: TypeScript
+- **Database**: MongoDB (Mongoose)
+- **Validation**: Zod
+- **Email**: Nodemailer
+
+## 📂 Project Structure
+
+```
+src/
+├── config/         # Environment & DB setup
+├── middleware/     # Auth, Rate Limit, Error handling
+├── modules/        # Feature modules (Auth, User, Mail, Token, OTP)
+├── utils/          # Helpers (Hash, Cookies, IP)
+├── app.ts          # Express App Setup
+└── server.ts       # Entry Point
+```
+
+## ⚡ Getting Started
+
+### 1. Installation
+
+```bash
+npm install
+```
+
+### 2. Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+MONGO_URI=mongodb://localhost:27017/auth-db
+JWT_ACCESS_SECRET=your_access_secret_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+GOOGLE_CLIENT_ID=your_google_client_id
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_email_app_password
+PORT=4000
+```
+
+### 3. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+The server will start on `http://localhost:4000`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔌 API Routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Base URL**: `/auth`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Public
+- `POST /signup` - Register new user
+- `POST /login` - Login (returns access token & refresh cookie)
+- `POST /verify-email` - Verify email OTP
+- `POST /verify-2fa` - Verify 2FA OTP during login
+- `POST /refresh` - Refresh access token
+- `POST /google-login` - Login with Google ID Token
+- `POST /forgot-password` - Request password reset
+- `POST /reset-password` - Reset password with token
 
-## Learn More
+### Protected (Requires `Authorization: Bearer <token>`)
+- `GET /me` - Get current user profile
+- `POST /2fa/enable` - Enable 2FA
+- `POST /2fa/disable` - Disable 2FA
+- `POST /logout` - Logout user
 
-To learn more about Next.js, take a look at the following resources:
+## 🧪 Testing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Refer to `testing_guide.md` for detailed Postman instructions.

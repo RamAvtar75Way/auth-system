@@ -3,39 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "nodemon --exec 'ts-node -r tsconfig-paths/register -r dotenv/config' src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "cookie": "^1.1.1",
-    "express-rate-limit": "^8.2.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
-    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5",
-    "next": "16.1.6",
     "nodemailer": "^7.0.13",
-    "qrcode": "^1.5.4",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "speakeasy": "^2.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie": "^0.6.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.30",
     "@types/nodemailer": "^7.0.9",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   }
 }

@@ -1,20 +1,18 @@
-import bcrypt from "bcryptjs"
-import crypto from "crypto"
-
-const BCRYPT_ROUNDS = 12
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, BCRYPT_ROUNDS)
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(password, salt);
 }
 
 export async function verifyPassword(
-  password: string,
-  hash: string
+  plain: string,
+  hashed: string
 ): Promise<boolean> {
-  return bcrypt.compare(password, hash)
+  return bcrypt.compare(plain, hashed);
 }
 
-
-export function sha256(input: string): string {
-  return crypto.createHash("sha256").update(input).digest("hex")
+export function sha256(content: string): string {
+  return crypto.createHash("sha256").update(content).digest("hex");
 }
