@@ -8,6 +8,9 @@ import { sendMail } from "@/lib/mail"
 import { otpEmailTemplate } from "@/lib/mail-templates"
 import type { ApiResponse } from "@/types/api"
 import type { LoginSuccessData } from "@/types/auth"
+import { signAccessToken, signRefreshToken } from "@/lib/jwt"
+import { setRefreshCookie } from "@/utils/cookies"
+
 
 const MAX_FAILED = 5
 const LOCK_MINUTES = 15
@@ -37,7 +40,6 @@ export async function POST(
       )
     }
 
-    // ✅ lock check
     if (user.lockUntil && user.lockUntil.getTime() > Date.now()) {
       return NextResponse.json(
         { success: false, error: "Account temporarily locked" },
@@ -92,13 +94,34 @@ export async function POST(
 
     await user.save()
 
-    return NextResponse.json({
+    const accessToken = signAccessToken({
+      userId: user._id.toString(),
+      tokenVersion: user.tokenVersion,
+      type: "access",
+    })
+
+    const refreshToken = signRefreshToken({
+      userId: user._id.toString(),
+      tokenVersion: user.tokenVersion,
+      type: "refresh",
+    })
+
+    user.refreshTokenHash = sha256(refreshToken)
+    await user.save()
+
+    const res = NextResponse.json({
       success: true,
       data: {
-        accessToken: "",
+        accessToken,
         requiresTwoFactor: false,
       },
-    })
+    } as const)
+
+
+    setRefreshCookie(res, refreshToken)
+
+    return res
+
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(
