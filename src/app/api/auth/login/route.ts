@@ -10,6 +10,9 @@ import type { ApiResponse } from "@/types/api"
 import type { LoginSuccessData } from "@/types/auth"
 import { signAccessToken, signRefreshToken } from "@/lib/jwt"
 import { setRefreshCookie } from "@/utils/cookies"
+import { checkRateLimit } from "@/lib/rete-limit"
+import { getClientIp } from "@/utils/ip"
+
 
 
 const MAX_FAILED = 5
@@ -19,6 +22,21 @@ export async function POST(
   req: NextRequest
 ): Promise<NextResponse<ApiResponse<LoginSuccessData>>> {
   try {
+
+    const ip = getClientIp(req)
+
+    const rl = checkRateLimit(ip + ":login", {
+      windowMs: 10 * 60 * 1000,
+      max: 5,
+    })
+
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Too many login attempts" } as const,
+        { status: 429 }
+      )
+    }
+
     const json: unknown = await req.json()
     const parsed: LoginInput = LoginSchema.parse(json)
 

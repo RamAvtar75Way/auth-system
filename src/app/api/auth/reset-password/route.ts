@@ -5,11 +5,28 @@ import { ResetPasswordSchema, ResetPasswordInput } from "@/lib/validators/auth"
 import { hashPassword, sha256 } from "@/utils/hash"
 import type { ApiResponse } from "@/types/api"
 import type { MessageData } from "@/types/auth"
+import { checkRateLimit } from "@/lib/rete-limit"
+import { getClientIp } from "@/utils/ip"
+
 
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<ApiResponse<MessageData>>> {
   try {
+    const ip = getClientIp(req)
+
+    const rl = checkRateLimit(ip + ":forgot", {
+      windowMs: 15 * 60 * 1000,
+      max: 3,
+    })
+
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Too many reset requests" } as const,
+        { status: 429 }
+      )
+    }
+
     const json: unknown = await req.json()
     const parsed: ResetPasswordInput = ResetPasswordSchema.parse(json)
 

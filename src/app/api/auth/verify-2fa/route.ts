@@ -7,6 +7,8 @@ import { signAccessToken, signRefreshToken } from "@/lib/jwt"
 import { setRefreshCookie } from "@/utils/cookies"
 import type { ApiResponse } from "@/types/api"
 import type { TwoFactorVerifyData } from "@/types/auth"
+import { checkRateLimit } from "@/lib/rete-limit"
+
 
 export async function POST(
   req: NextRequest
@@ -14,6 +16,18 @@ export async function POST(
   try {
     const json: unknown = await req.json()
     const parsed: TwoFactorInput = TwoFactorSchema.parse(json)
+    const rl = checkRateLimit(parsed.userId + ":2fa", {
+      windowMs: 10 * 60 * 1000,
+      max: 5,
+    })
+
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Too many OTP attempts" } as const,
+        { status: 429 }
+      )
+    }
+
 
     await connectDB()
 
