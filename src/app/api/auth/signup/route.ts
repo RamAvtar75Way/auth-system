@@ -6,6 +6,9 @@ import { hashPassword, sha256 } from "@/utils/hash"
 import { generateOtpCode, otpExpiry } from "@/lib/otp"
 import type { ApiResponse } from "@/types/api"
 import type { SignupSuccessData } from "@/types/auth"
+import { sendMail } from "@/lib/mail"
+import { otpEmailTemplate } from "@/lib/mail-templates"
+
 
 export async function POST(
   req: NextRequest
@@ -39,7 +42,12 @@ export async function POST(
       emailVerifyExpiry: otpExpiry(10),
     })
 
-    console.log("EMAIL OTP:", otp)
+    await sendMail(
+      parsed.email,
+      "Verify your email",
+      otpEmailTemplate(otp)
+    )
+
 
     return NextResponse.json({
       success: true,
